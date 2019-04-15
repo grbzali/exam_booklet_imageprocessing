@@ -8,9 +8,7 @@ i = 1
 
 print(len(koordinat_sk))
 
-
 for i in range(len(koordinat_sk)):
-
     if i % 2 == 0:
 
         coords[i][0] = koordinat_sk[i][0]
