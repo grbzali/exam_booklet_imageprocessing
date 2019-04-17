@@ -1,4 +1,5 @@
 import cv2
+import numpy as np
 
 temp_sol_ust = cv2.imread('C:\\Users\\NovaPM\\Desktop\\test_img\\sol_ust2.png', 0)
 temp_sag_ust = cv2.imread('C:\\Users\\NovaPM\\Desktop\\test_img\\sag_ust2.png', 0)

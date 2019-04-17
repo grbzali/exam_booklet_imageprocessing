@@ -1,5 +1,7 @@
 import cv2
 import numpy as np
+import json
+from iki_cevap_fark import cevap_oku_fark
 
 A_temp1 = cv2.imread('C:\\Users\\NovaPM\\Desktop\\test_img\\A.png')
 ret, A_temp1 = cv2.threshold(A_temp1, 200, 255, cv2.THRESH_BINARY)
@@ -18,6 +20,8 @@ dogru_sk = []
 
 def main(image1, image2, s, coords):
 
+
+    sorular = coords["sorular"]
     print("KİTAPÇIK NO:", s)
     img_rgb = image1  # işaretli görüntü
     img_gray = image2  # ham görüntü
@@ -26,13 +30,17 @@ def main(image1, image2, s, coords):
     ret, thresh2 = cv2.threshold(img_rgb, 200, 255, cv2.THRESH_BINARY)  # ham görüntünün binary tabana çevirilmesi
     ret, thresh3 = cv2.threshold(img_rgb, 200, 255, cv2.THRESH_BINARY)  # iki şık ve fazla işaret saptandığında bu görüntüden kırpılıp gönderiliyor fark metoduna
 
-    sk_say = len(coords)
-    soru_say = (sk_say) // 4
-    koordinat_sk = coords
+    soru_say = len(sorular)
+    sk_say = (soru_say) * 4
+    koordinat_sk = []
+    koordinat_sk1 = []
 
-    for i in range(len(koordinat_sk)):
-        sk.append(thresh2[(koordinat_sk[i][1]):(koordinat_sk[i][1]) + 70, (koordinat_sk[i][0]):(koordinat_sk[i][0]) + 100])
-
+    for i in range(len(coords["sorular"])):
+        for sklar in coords["sorular"][i]:
+            sk.append(thresh2[int((sorular[i][sklar]["center"]["first"]["y"])):int((sorular[i][sklar]["center"]["second"]["y"])),
+                      int((sorular[i][sklar]["center"]["first"]["x"])):int((sorular[i][sklar]["center"]["second"]["x"]))])
+            koordinat_sk.append((int((sorular[i][sklar]["center"]["first"]["x"])), int((sorular[i][sklar]["center"]["first"]["y"]))))
+            koordinat_sk1.append((int((sorular[i][sklar]["center"]["second"]["x"])), int((sorular[i][sklar]["center"]["second"]["y"]))))
     i = 0
     while i < sk_say:
         j = i % 4
@@ -83,8 +91,7 @@ def main(image1, image2, s, coords):
                     dogru_sk.append("C")
                 else:
                     dogru_sk.append("D")
-                cv2.rectangle(thresh2, (koordinat_sk[i][0], koordinat_sk[i][1]),
-                              ((koordinat_sk[i][0]) + 100, (koordinat_sk[i][1]) + 70), (0, 255, 0), 5)
+                cv2.rectangle(thresh2, (koordinat_sk[i][0], koordinat_sk[i][1]), ((koordinat_sk1[i][0]), (koordinat_sk1[i][1])), (0, 255, 0), 5)
             else:
                 x = cevap_oku_fark(sk1[i - 1], temps1[j - 1], sk1[i], temps1[j])
                 if x == 1:
@@ -98,9 +105,9 @@ def main(image1, image2, s, coords):
                     else:
                         dogru_sk.append("D")
                     cv2.rectangle(thresh2, (koordinat_sk[i - 1][0], koordinat_sk[i - 1][1]),
-                                  ((koordinat_sk[i - 1][0]) + 100, (koordinat_sk[i - 1][1]) + 70), (0, 0, 255), 5)
+                                  ((koordinat_sk1[i - 1][0]), (koordinat_sk1[i - 1][1])), (0, 0, 255), 5)
                     cv2.rectangle(thresh2, (koordinat_sk[i][0], koordinat_sk[i][1]),
-                                  ((koordinat_sk[i][0]) + 100, (koordinat_sk[i][1]) + 70), (0, 255, 0), 5)
+                                  ((koordinat_sk1[i][0]), (koordinat_sk1[i][1])), (0, 255, 0), 5)
                 else:
                     dogru_sk.pop(len(dogru_sk) - 1)
                     j -= 1
@@ -114,13 +121,13 @@ def main(image1, image2, s, coords):
                         dogru_sk.append("D")
 
                     cv2.rectangle(thresh2, (koordinat_sk[i - 1][0], koordinat_sk[i - 1][1]),
-                                  ((koordinat_sk[i - 1][0]) + 100, (koordinat_sk[i - 1][1]) + 70), (0, 255, 0), 5)
+                                  ((koordinat_sk1[i - 1][0]), (koordinat_sk1[i - 1][1])), (0, 255, 0), 5)
                     cv2.rectangle(thresh2, (koordinat_sk[i][0], koordinat_sk[i][1]),
-                                  ((koordinat_sk[i][0]) + 100, (koordinat_sk[i][1]) + 70), (0, 0, 255), 5)
+                                  ((koordinat_sk1[i][0]), (koordinat_sk1[i][1])), (0, 0, 255), 5)
 
         else:
             cv2.rectangle(thresh2, (koordinat_sk[i][0], koordinat_sk[i][1]),
-                          ((koordinat_sk[i][0]) + 100, (koordinat_sk[i][1]) + 70), (0, 0, 255), 5)
+                          ((koordinat_sk1[i][0]), (koordinat_sk1[i][1])), (0, 0, 255), 5)
         i += 1
 
     # -------------------------------------------------------------------------------------------------------------------------------------------------------------
