@@ -2,14 +2,16 @@ import cv2
 import numpy as np
 import json
 from iki_cevap_fark import cevap_oku_fark
+import time
+start_time = int(round(time.time() * 1000))
 
-A_temp1 = cv2.imread('C:\\Users\\NovaPM\\Desktop\\test_img\\A.png')
+A_temp1 = cv2.imread('C:\\Users\\NovaPM\\Desktop\\temps\\A.png')
 ret, A_temp1 = cv2.threshold(A_temp1, 200, 255, cv2.THRESH_BINARY)
-B_temp1 = cv2.imread('C:\\Users\\NovaPM\\Desktop\\test_img\\B.png')
+B_temp1 = cv2.imread('C:\\Users\\NovaPM\\Desktop\\temps\\B.png')
 ret, B_temp1 = cv2.threshold(B_temp1, 200, 255, cv2.THRESH_BINARY)
-C_temp1 = cv2.imread('C:\\Users\\NovaPM\\Desktop\\test_img\\C.png')
+C_temp1 = cv2.imread('C:\\Users\\NovaPM\\Desktop\\temps\\C.png')
 ret, C_temp1 = cv2.threshold(C_temp1, 200, 255, cv2.THRESH_BINARY)
-D_temp1 = cv2.imread('C:\\Users\\NovaPM\\Desktop\\test_img\\D.png')
+D_temp1 = cv2.imread('C:\\Users\\NovaPM\\Desktop\\temps\\D.png')
 ret, D_temp1 = cv2.threshold(D_temp1, 200, 255, cv2.THRESH_BINARY)
 
 temps1 = [A_temp1, B_temp1, C_temp1, D_temp1]
@@ -38,18 +40,25 @@ def main(image1, image2, s, coords):
     for i in range(len(coords["sorular"])):
         for sklar in coords["sorular"][i]:
             sk.append(thresh2[int((sorular[i][sklar]["center"]["first"]["y"])):int((sorular[i][sklar]["center"]["second"]["y"])),
-                      int((sorular[i][sklar]["center"]["first"]["x"])):int((sorular[i][sklar]["center"]["second"]["x"]))])
-            koordinat_sk.append((int((sorular[i][sklar]["center"]["first"]["x"])), int((sorular[i][sklar]["center"]["first"]["y"]))))
-            koordinat_sk1.append((int((sorular[i][sklar]["center"]["second"]["x"])), int((sorular[i][sklar]["center"]["second"]["y"]))))
+                                int((sorular[i][sklar]["center"]["first"]["x"]))-50:int((sorular[i][sklar]["center"]["second"]["x"]))])#şıkların hepsi tek tek verilen 2 nokta ile sk[a,b,c,d,a,b,c,d] olarak alındı.
+            sk1.append(thresh3[int((sorular[i][sklar]["center"]["first"]["y"])):int((sorular[i][sklar]["center"]["second"]["y"])),
+                                int((sorular[i][sklar]["center"]["first"]["x"]))-50:int((sorular[i][sklar]["center"]["second"]["x"]))])#coklu cevaplar için aynı şekilde sıklar sk1 e alındı.
+            koordinat_sk.append((int((sorular[i][sklar]["center"]["first"]["x"]))-50, int((sorular[i][sklar]["center"]["first"]["y"])))) #rectangle kullanmak için şıkların ilk koordinatları alndı
+            koordinat_sk1.append((int((sorular[i][sklar]["center"]["second"]["x"])), int((sorular[i][sklar]["center"]["second"]["y"])))) #rectangle kullanmak için şıkların ikinci koordinatları alndı
+    cv2.imwrite('C:\\Users\\NovaPM\\Desktop\\adogru_cevap.png', sk[0])
+    cv2.imwrite('C:\\Users\\NovaPM\\Desktop\\bdogru_cevap.png', sk[1])
+    cv2.imwrite('C:\\Users\\NovaPM\\Desktop\\cdogru_cevap.png', sk[2])
+    cv2.imwrite('C:\\Users\\NovaPM\\Desktop\\ddogru_cevap.png', sk[3])
+
     i = 0
     while i < sk_say:
-        j = i % 4
-        fark = sk[i]
+        j = i % 4   #şık sayısı ilk 4 den sonra hangi şık oldugunu tutuyoruz.
+        fark = sk[i] #sk içinde olan şıklar tek tek alınıyor
 
         fark = cv2.cvtColor(fark, cv2.COLOR_BGR2GRAY)  # görüntü gray tona çeviriliyor
         ret, fark = cv2.threshold(fark, 200, 255, cv2.THRESH_BINARY)
 
-        fark1 = temps1[j]
+        fark1 = temps1[j] #mevcut şıkkın ham frame i alınıyor
         fark1 = cv2.cvtColor(fark1, cv2.COLOR_BGR2GRAY)  # görüntü gray tona çeviriliyor
         ret, fark1 = cv2.threshold(fark1, 200, 255, cv2.THRESH_BINARY)
 
@@ -67,16 +76,20 @@ def main(image1, image2, s, coords):
         say_fark1 = 0
 
         for k in range(0, 70):
-            for t in range(0, 100):
+            for t in range(0, 150):
                 if px[k][t] == 0:
                     say_fark += 1  # siyah pixeller sayılıyor
 
         for k in range(0, 70):
-            for t in range(0, 100):
+            for t in range(0, 150):
                 if px1[k][t] == 0:
                     say_fark1 += 1  # siyah pixeller sayılıyor
 
         siyah_fark = abs(say_fark1 - say_fark)
+
+        print(i, ". sık ", say_fark1)
+        print(i, ". sık ", say_fark)
+        print(i, ". sık ", siyah_fark)
 
         if siyah_fark > 250:
             if len(birden_fazla) != int(i / 4) + 1:
@@ -135,4 +148,8 @@ def main(image1, image2, s, coords):
     print(birden_fazla)
     print("-------------------------------------------------------")
     cv2.imwrite('C:\\Users\\NovaPM\\Desktop\\' + str(s) + '_dogru_cevap.png', thresh2)
+    finish_time = int(round(time.time() * 1000))
+    print("Sistem Çalışma Süresi:", (finish_time) - (start_time), "Ms")
+
     return dogru_sk
+
