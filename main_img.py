@@ -1,7 +1,8 @@
 import cv2
 import numpy as np
 import json
-from iki_cevap_fark import cevap_oku_fark
+from iki_cevap_fark import cevap_oku_fark2
+from iki_cevap_fark import cevap_oku_fark3
 import time
 start_time = int(round(time.time() * 1000))
 
@@ -87,9 +88,6 @@ def main(image1, image2, s, coords):
 
         siyah_fark = abs(say_fark1 - say_fark)
 
-        print(i, ". sık ", say_fark1)
-        print(i, ". sık ", say_fark)
-        print(i, ". sık ", siyah_fark)
 
         if siyah_fark > 250:
             if len(birden_fazla) != int(i / 4) + 1:
@@ -106,7 +104,8 @@ def main(image1, image2, s, coords):
                     dogru_sk.append("D")
                 cv2.rectangle(thresh2, (koordinat_sk[i][0], koordinat_sk[i][1]), ((koordinat_sk1[i][0]), (koordinat_sk1[i][1])), (0, 255, 0), 5)
             else:
-                x = cevap_oku_fark(sk1[i - 1], temps1[j - 1], sk1[i], temps1[j])
+                print((i/4) + 1, ".soru", int(j+1), ".şıkkı farkı---->", siyah_fark)
+                x = cevap_oku_fark2(sk1[i - 1], temps1[j - 1], sk1[i], temps1[j])
                 if x == 1:
                     dogru_sk.pop(len(dogru_sk) - 1)
                     if j == 0:
