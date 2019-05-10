@@ -39,12 +39,5 @@ def dbinsert (connection, aday_id, kitapcik_id, cevaplar):
     else:
 
         print("Aynı aday ve kitapçığa ait cevap kaydı bulunuyor...!")
-
-
-barcode = 6070014
-connection = dbconnect()
-pos = dbgetbarcode(connection, barcode)
-print(pos)
-
-dbinsert(connection, 4, 1, "aaaocobxaabxob")
+        
 
