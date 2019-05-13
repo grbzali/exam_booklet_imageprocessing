@@ -9,6 +9,7 @@ import skew_image
 import creat_temps
 import json
 from main_img import main
+import dbactions
 
 def decode(im):
     # Find barcodes and QR codes
@@ -53,55 +54,106 @@ filename = 'C:\\Users\\NovaPM\\Desktop\\denemes\\test_b_kit.PDF'
 
 path = 'C:\\Users\\NovaPM\\Desktop\\denemes'
 
-images = convert_from_path('C:\\Users\\NovaPM\\Desktop\\denemes\\test_b_kit.PDF', dpi=300, output_folder=path, fmt='JPEG', output_file="sayfa") #pdf2image
+#images = convert_from_path('C:\\Users\\NovaPM\\Desktop\\denemes\\test_b_kit.PDF', dpi=300, output_folder=path, fmt='JPEG', output_file="sayfa") #pdf2image
 
-kitapcik_id_temp = 0
-jpg_say = len(glob("C:\\Users\\NovaPM\\Desktop\\Barkod_okuyucu\\isaretli\\*.jpg"))  # klasördeki frame sayısı
-print(jpg_say)
+kitapcik_id_temp = []
+kitapcik_id = 0
+
+jpg_say = len(glob("C:\\Users\\NovaPM\\Desktop\\denemes\\isaretli\\*.jpg"))  # klasördeki frame sayısı
+print(" Dizinde", jpg_say, "Image bulunuyor.")
 
 i = 1
+j = 0
+kitapcik_id_temp1 = []
+cevap_sk = ''
+sumdogru_sk = []
+dogru_sk = []
+while i <= (jpg_say):
+    print("i değeri", i)
 
-#while i <= (jpg_say):
-#    print("i değeri", i)
-#    if i < 10:
-#        im = cv2.imread('C:\\Users\\NovaPM\\Desktop\\Barkod_okuyucu\\isaretli\\sayfa-0' + str(i) + '.jpg')
-#        im1 = cv2.imread('C:\\Users\\NovaPM\\Desktop\\Barkod_okuyucu\\isaretsiz\\sayfa-0' + str(i) + '.jpg')
-#    else:
-#        im = cv2.imread('C:\\Users\\NovaPM\\Desktop\\Barkod_okuyucu\\isaretli\\sayfa-' + str(i) + '.jpg')
-#        im1 = cv2.imread('C:\\Users\\NovaPM\\Desktop\\Barkod_okuyucu\\isaretsiz\\sayfa-' + str(i) + '.jpg')
-#    decodedObjects, data = decode(im)
-#
-#    if decodedObjects == []:
-#        print("barkod bulunamadı")
-#        i += 1
-#        continue
-#    else:
-#        display(im, decodedObjects)
-#        # print(data[0:-4])
-#        # print(data[9:-1])
-#        kitapcik_id = data[:9]
+    im = 0
+    if i < 10:
+        im = cv2.imread('C:\\Users\\NovaPM\\Desktop\\denemes\\isaretli\\sayfa-0' + str(i) + '.jpg')
+        im1 = cv2.imread('C:\\Users\\NovaPM\\Desktop\\denemes\\isaretsiz\\sayfa-0' + str(i) + '.jpg')
+    else:
+        im = cv2.imread('C:\\Users\\NovaPM\\Desktop\\denemes\\isaretli\\sayfa-' + str(i) + '.jpg')
+        im1 = cv2.imread('C:\\Users\\NovaPM\\Desktop\\denemes\\isaretsiz\\sayfa-' + str(i) + '.jpg')
 
-im = cv2.imread('C:\\Users\\NovaPM\\Desktop\\Barkod_okuyucu\\isaretli\\sayfa-17.jpg')
-im1 = cv2.imread('C:\\Users\\NovaPM\\Desktop\\Barkod_okuyucu\\isaretsiz\\sayfa-17.jpg')
+    decodedObjects, data = decode(im)
 
-rotated_image1 = rotate_img.rotate(im)
-rotated_image2 = rotate_img.rotate(im1)
+    if decodedObjects == []:
+        print("barkod bulunamadı")
 
-coords_marked = skew_positions.get_positions(rotated_image1)
-coords_raw = skew_positions.get_positions(rotated_image2)
+        i += 1
 
-images1 = skew_image.skew(coords_marked, rotated_image1)
-images2 = skew_image.skew(coords_raw, rotated_image2)
+        continue
+    else:
+        display(im, decodedObjects)
+        # print(data[0:-4])
+         # print(data[9:-1])
 
-#dbcoords
+        page_id = data[2:]
+        kitapcik_id = data[2:9]
 
-coords = '{"sorular":[{"a":{"center":{"first":{"x":"152","y":"358"},"second":{"x":"252","y":"428"}},"left":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}},"right":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}}},"b":{"center":{"first":{"x":"152","y":"443"},"second":{"x":"252","y":"513"}},"left":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}},"right":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}}},"c":{"center":{"first":{"x":"152","y":"531"},"second":{"x":"252","y":"601"}},"left":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}},"right":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}}},"d":{"center":{"first":{"x":"152","y":"619"},"second":{"x":"252","y":"689"}},"left":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}},"right":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}}}},{"a":{"center":{"first":{"x":"152","y":"823"},"second":{"x":"252","y":"893"}},"left":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}},"right":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}}},"b":{"center":{"first":{"x":"152","y":"908"},"second":{"x":"252","y":"978"}},"left":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}},"right":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}}},"c":{"center":{"first":{"x":"152","y":"995"},"second":{"x":"252","y":"1065"}},"left":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}},"right":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}}},"d":{"center":{"first":{"x":"152","y":"1083"},"second":{"x":"252","y":"1153"}},"left":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}},"right":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}}}},{"a":{"center":{"first":{"x":"152","y":"1355"},"second":{"x":"252","y":"1425"}},"left":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}},"right":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}}},"b":{"center":{"first":{"x":"152","y":"1440"},"second":{"x":"252","y":"1510"}},"left":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}},"right":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}}},"c":{"center":{"first":{"x":"152","y":"1527"},"second":{"x":"252","y":"1597"}},"left":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}},"right":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}}},"d":{"center":{"first":{"x":"152","y":"1615"},"second":{"x":"252","y":"1685"}},"left":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}},"right":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}}}},{"a":{"center":{"first":{"x":"152","y":"1887"},"second":{"x":"252","y":"1957"}},"left":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}},"right":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}}},"b":{"center":{"first":{"x":"152","y":"1972"},"second":{"x":"252","y":"2042"}},"left":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}},"right":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}}},"c":{"center":{"first":{"x":"152","y":"2059"},"second":{"x":"252","y":"2129"}},"left":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}},"right":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}}},"d":{"center":{"first":{"x":"152","y":"2147"},"second":{"x":"252","y":"2217"}},"left":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}},"right":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}}}},{"a":{"center":{"first":{"x":"152","y":"2419"},"second":{"x":"252","y":"2489"}},"left":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}},"right":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}}},"b":{"center":{"first":{"x":"152","y":"2504"},"second":{"x":"252","y":"2574"}},"left":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}},"right":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}}},"c":{"center":{"first":{"x":"152","y":"2591"},"second":{"x":"252","y":"2661"}},"left":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}},"right":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}}},"d":{"center":{"first":{"x":"152","y":"2679"},"second":{"x":"252","y":"2749"}},"left":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}},"right":{"first":{"x":"100","y":"200"},"second":{"x":"170","y":"270"}}}}]}'
-y = json.loads(coords)
+        kitapcik_id_temp.append(kitapcik_id)
 
-#temps = creat_temps.temps(images2, y, i)
+        rotated_image1 = rotate_img.rotate(im)
+        rotated_image2 = rotate_img.rotate(im1)
 
-dogru_sk = main(images1, images2, i, y)
+        coords_marked = skew_positions.get_positions(rotated_image1)
+        coords_raw = skew_positions.get_positions(rotated_image2)
 
-i += 1
+        images1 = skew_image.skew(coords_marked, rotated_image1)
+        images2 = skew_image.skew(coords_raw, rotated_image2)
 
-print(dogru_sk)
+        connection = dbactions.dbconnect()
+
+        positions = dbactions.dbgetpositions(connection, page_id)
+
+        y = json.loads(positions)
+
+        # temps = creat_temps.temps(images2, y, i)
+
+        farktemp = len(dogru_sk)
+
+        dogru_sk = main(images1, images2, i, y)
+
+        farktemp2 = len(dogru_sk)
+
+        sayıfark = farktemp2-farktemp
+        print(sayıfark)
+
+        print("gelen--dogrusk", dogru_sk)
+        if kitapcik_id_temp[j] != kitapcik_id_temp[j-1]:
+
+            dogru_sk1 = dogru_sk[0:len(dogru_sk) - sayıfark]
+            del dogru_sk[:len(dogru_sk)-sayıfark]
+            print("cıkarılmısdogrusk", dogru_sk)
+            dogru_sk1 = dogru_sk1[::-1]
+            print("dogrusk11111", dogru_sk1)
+
+
+            for k in range(len(dogru_sk1)-1, -1, -1):
+                print(dogru_sk1[k])
+                cevap_sk += dogru_sk1[k]
+                print("son dogrusk", cevap_sk)
+
+            dbactions.dbinsert(connection, 11, kitapcik_id_temp[j-1], cevap_sk)
+
+        elif i == jpg_say:
+            dogru_sk = dogru_sk[::-1]
+            cevap_sk = ''
+            for k in range(len(dogru_sk)-1, -1, -1):
+
+                print(dogru_sk[k])
+                cevap_sk += dogru_sk[k]
+                print("son dogrusk", cevap_sk)
+            print(kitapcik_id_temp[len(kitapcik_id_temp)-1])
+
+            dbactions.dbinsert(connection, 11, kitapcik_id, cevap_sk)
+
+        else:
+            print('Kitapçık tamamlanmadı.')
+        j += 1
+        i += 1
+

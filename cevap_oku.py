@@ -256,6 +256,7 @@ def cevap_oku_fark(image1, temp1, image2, temp2):
     temp_say_siyah = 0
     x = 0
     secim = []  # şıkları karşılaştırmak için seçim dizisi oluşturuldu
+
     while x < len(gelen):
 
         fark = cv2.addWeighted(gelen[x], 0.7, gelen[x + 1], 0.3, 0)  # işaretli şık işaretlenmemiş şıkkın üzerinde saydam bir şekilde yerleştiriliyor

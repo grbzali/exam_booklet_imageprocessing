@@ -2,7 +2,6 @@ import cv2
 import numpy as np
 import json
 from iki_cevap_fark import cevap_oku_fark2
-from iki_cevap_fark import cevap_oku_fark3
 import time
 start_time = int(round(time.time() * 1000))
 
@@ -17,12 +16,13 @@ ret, D_temp1 = cv2.threshold(D_temp1, 200, 255, cv2.THRESH_BINARY)
 
 temps1 = [A_temp1, B_temp1, C_temp1, D_temp1]
 
-sk = []
-sk1 = []
 dogru_sk = []
 
 def main(image1, image2, s, coords):
 
+
+    sk = []
+    sk1 = []
 
     sorular = coords["sorular"]
     print("KİTAPÇIK NO:", s)
@@ -47,7 +47,7 @@ def main(image1, image2, s, coords):
             koordinat_sk.append((int((sorular[i][sklar]["center"]["first"]["x"]))-50, int((sorular[i][sklar]["center"]["first"]["y"])))) #rectangle kullanmak için şıkların ilk koordinatları alndı
             koordinat_sk1.append((int((sorular[i][sklar]["center"]["second"]["x"])), int((sorular[i][sklar]["center"]["second"]["y"])))) #rectangle kullanmak için şıkların ikinci koordinatları alndı
     cv2.imwrite('C:\\Users\\NovaPM\\Desktop\\adogru_cevap.png', sk[0])
-    cv2.imwrite('C:\\Users\\NovaPM\\Desktop\\bdogru_cevap.png', sk[1])
+    cv2.imwrite('C:\\Users\\NovaPM\\Desktop\\bdogru_cev ap.png', sk[1])
     cv2.imwrite('C:\\Users\\NovaPM\\Desktop\\cdogru_cevap.png', sk[2])
     cv2.imwrite('C:\\Users\\NovaPM\\Desktop\\ddogru_cevap.png', sk[3])
 
