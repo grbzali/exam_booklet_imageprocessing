@@ -9,7 +9,7 @@ def dbconnect():
                                  db='belgelendirme')
     return connection
 
-def dbgetpositions(connection, barcode_id):
+def dbgetbarcode(connection, barcode_id):
     result = []
 
     cursor = connection.cursor()
@@ -18,6 +18,7 @@ def dbgetpositions(connection, barcode_id):
     result = cursor.fetchall()
     cursor.close()
     result = result[0][0][1:len(result[0][0]) - 1]
+
 
     return result
 
@@ -40,5 +41,10 @@ def dbinsert (connection, aday_id, kitapcik_id, cevaplar):
         print("Aynı aday ve kitapçığa ait cevap kaydı bulunuyor...!")
 
 
+barcode = 6070014
+connection = dbconnect()
+pos = dbgetbarcode(connection, barcode)
+print(pos)
 
+dbinsert(connection, 4, 1, "aaaocobxaabxob")
 
