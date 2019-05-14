@@ -108,7 +108,7 @@ while i <= (jpg_say):
 
         connection = dbactions.dbconnect()
 
-        positions = dbactions.dbgetpositions(connection, page_id)
+        positions, aday_id = dbactions.dbgetbarcode(connection, page_id)
 
         y = json.loads(positions)
 
@@ -123,21 +123,21 @@ while i <= (jpg_say):
         sayıfark = farktemp2-farktemp
         print(sayıfark)
 
-        print("gelen--dogrusk", dogru_sk)
+
         if kitapcik_id_temp[j] != kitapcik_id_temp[j-1]:
 
             dogru_sk1 = dogru_sk[0:len(dogru_sk) - sayıfark]
             del dogru_sk[:len(dogru_sk)-sayıfark]
-            print("cıkarılmısdogrusk", dogru_sk)
+
             dogru_sk1 = dogru_sk1[::-1]
-            print("dogrusk11111", dogru_sk1)
+
 
 
             for k in range(len(dogru_sk1)-1, -1, -1):
-                print(dogru_sk1[k])
-                cevap_sk += dogru_sk1[k]
-                print("son dogrusk", cevap_sk)
 
+                 cevap_sk += dogru_sk1[k]
+
+            print("Kitapçık cevapları için")
             dbactions.dbinsert(connection, 11, kitapcik_id_temp[j-1], cevap_sk)
 
         elif i == jpg_say:
@@ -145,12 +145,12 @@ while i <= (jpg_say):
             cevap_sk = ''
             for k in range(len(dogru_sk)-1, -1, -1):
 
-                print(dogru_sk[k])
-                cevap_sk += dogru_sk[k]
-                print("son dogrusk", cevap_sk)
-            print(kitapcik_id_temp[len(kitapcik_id_temp)-1])
 
-            dbactions.dbinsert(connection, 11, kitapcik_id, cevap_sk)
+                cevap_sk += dogru_sk[k]
+
+            print("Son kitapçık cevapları için")
+            dbactions.dbinsert(connection, aday_id, kitapcik_id, cevap_sk)
+
 
         else:
             print('Kitapçık tamamlanmadı.')

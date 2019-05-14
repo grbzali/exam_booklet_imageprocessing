@@ -10,17 +10,29 @@ def dbconnect():
     return connection
 
 def dbgetbarcode(connection, barcode_id):
+
     result = []
 
     cursor = connection.cursor()
     sql = "SELECT positions FROM barcode WHERE barcode_id = %s"
     cursor.execute(sql, barcode_id)
-    result = cursor.fetchall()
-    cursor.close()
-    result = result[0][0][1:len(result[0][0]) - 1]
+    positions = cursor.fetchall()
 
+    if positions == 0:
+        print("Barcode id'e ait bilgi bulunmuyor...")
+        return 0
 
-    return result
+    else:
+
+        positions = positions[0][0][1:len(positions[0][0]) - 1]
+
+        sql = "SELECT aday_id FROM barcode WHERE barcode_id = %s"
+        cursor.execute(sql, barcode_id)
+        aday_id = cursor.fetchall()
+        aday_id = aday_id[0][0]
+        cursor.close()
+
+    return positions, aday_id
 
 def dbinsert (connection, aday_id, kitapcik_id, cevaplar):
 
@@ -31,20 +43,15 @@ def dbinsert (connection, aday_id, kitapcik_id, cevaplar):
     result = cursor.fetchall()
 
     if not result:
-
+        print(result)
         sql = "INSERT INTO test_cevaplar (id, aday_id, kitapcik_id, cevaplar) VALUES (NULL, %s, %s, %s)"
         cursor.execute(sql, (aday_id, kitapcik_id, cevaplar))
         connection.commit()
         print("Kayıt Eklendi...")
+
     else:
 
         print("Aynı aday ve kitapçığa ait cevap kaydı bulunuyor...!")
 
 
-barcode = 6070014
-connection = dbconnect()
-pos = dbgetbarcode(connection, barcode)
-print(pos)
-
-dbinsert(connection, 4, 1, "aaaocobxaabxob")
 
