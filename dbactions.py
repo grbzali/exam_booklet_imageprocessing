@@ -38,13 +38,13 @@ def dbinsert (connection, aday_id, kitapcik_id, cevaplar):
 
     result = 0
     cursor = connection.cursor()
-    sql = "SELECT * FROM test_cevaplar where aday_id = %s and kitapcik_id = %s"
+    sql = "SELECT * FROM cevap where aday_id = %s and kitapcik_id = %s"
     cursor.execute(sql, (aday_id, kitapcik_id))
     result = cursor.fetchall()
 
     if not result:
         print(result)
-        sql = "INSERT INTO test_cevaplar (id, aday_id, kitapcik_id, cevaplar) VALUES (NULL, %s, %s, %s)"
+        sql = "INSERT INTO cevap (id, aday_id, kitapcik_id, cevaplar) VALUES (NULL, %s, %s, %s)"
         cursor.execute(sql, (aday_id, kitapcik_id, cevaplar))
         connection.commit()
         print("Kayıt Eklendi...")

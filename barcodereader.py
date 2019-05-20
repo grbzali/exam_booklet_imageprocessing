@@ -138,22 +138,22 @@ while i <= (jpg_say):
                  cevap_sk += dogru_sk1[k]
 
             print("Kitapçık cevapları için")
-            dbactions.dbinsert(connection, 11, kitapcik_id_temp[j-1], cevap_sk)
+            print(dogru_sk1, " -------", cevap_sk)
+
+            dbactions.dbinsert(connection, aday_id, kitapcik_id_temp[j-1], cevap_sk)
+            cevap_sk = ''
 
         elif i == jpg_say:
             dogru_sk = dogru_sk[::-1]
             cevap_sk = ''
             for k in range(len(dogru_sk)-1, -1, -1):
 
-
                 cevap_sk += dogru_sk[k]
 
             print("Son kitapçık cevapları için")
             dbactions.dbinsert(connection, aday_id, kitapcik_id, cevap_sk)
 
-
         else:
             print('Kitapçık tamamlanmadı.')
         j += 1
         i += 1
-

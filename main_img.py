@@ -17,7 +17,7 @@ ret, D_temp1 = cv2.threshold(D_temp1, 200, 255, cv2.THRESH_BINARY)
 temps1 = [A_temp1, B_temp1, C_temp1, D_temp1]
 
 dogru_sk = []
-
+farkpx = []
 def main(image1, image2, s, coords):
 
 
@@ -37,7 +37,10 @@ def main(image1, image2, s, coords):
     sk_say = (soru_say) * 4
     koordinat_sk = []
     koordinat_sk1 = []
-
+    tempsk = []
+    tempsraw = []
+    tempscoord = []
+    tempscoord1 = []
     for i in range(len(coords["sorular"])):
         for sklar in coords["sorular"][i]:
             sk.append(thresh2[int((sorular[i][sklar]["center"]["first"]["y"])):int((sorular[i][sklar]["center"]["second"]["y"])),
@@ -45,11 +48,7 @@ def main(image1, image2, s, coords):
             sk1.append(thresh3[int((sorular[i][sklar]["center"]["first"]["y"])):int((sorular[i][sklar]["center"]["second"]["y"])),
                                 int((sorular[i][sklar]["center"]["first"]["x"]))-50:int((sorular[i][sklar]["center"]["second"]["x"]))])#coklu cevaplar için aynı şekilde sıklar sk1 e alındı.
             koordinat_sk.append((int((sorular[i][sklar]["center"]["first"]["x"]))-50, int((sorular[i][sklar]["center"]["first"]["y"])))) #rectangle kullanmak için şıkların ilk koordinatları alndı
-            koordinat_sk1.append((int((sorular[i][sklar]["center"]["second"]["x"])), int((sorular[i][sklar]["center"]["second"]["y"])))) #rectangle kullanmak için şıkların ikinci koordinatları alndı
-    cv2.imwrite('C:\\Users\\NovaPM\\Desktop\\adogru_cevap.png', sk[0])
-    cv2.imwrite('C:\\Users\\NovaPM\\Desktop\\bdogru_cev ap.png', sk[1])
-    cv2.imwrite('C:\\Users\\NovaPM\\Desktop\\cdogru_cevap.png', sk[2])
-    cv2.imwrite('C:\\Users\\NovaPM\\Desktop\\ddogru_cevap.png', sk[3])
+            koordinat_sk1.append((int((sorular[i][sklar]["center"]["second"]["x"])), int((sorular[i][sklar]["center"]["second"]["y"])))) #rectangle kullanmak için şıkların ikinci koordinatları alndı0
 
     i = 0
     while i < sk_say:
@@ -88,8 +87,13 @@ def main(image1, image2, s, coords):
 
         siyah_fark = abs(say_fark1 - say_fark)
 
-
         if siyah_fark > 250:
+
+            tempsk.append(sk1[i])
+            tempsraw.append(temps1[j])
+            tempscoord.append(koordinat_sk[i])
+            tempscoord1.append(koordinat_sk1[i])
+
             if len(birden_fazla) != int(i / 4) + 1:
                 birden_fazla.append(int(i / 4) + 1)
 
@@ -105,7 +109,8 @@ def main(image1, image2, s, coords):
                 cv2.rectangle(thresh2, (koordinat_sk[i][0], koordinat_sk[i][1]), ((koordinat_sk1[i][0]), (koordinat_sk1[i][1])), (0, 255, 0), 5)
             else:
                 print((i/4) + 1, ".soru", int(j+1), ".şıkkı farkı---->", siyah_fark)
-                x = cevap_oku_fark2(sk1[i - 1], temps1[j - 1], sk1[i], temps1[j])
+
+                x = cevap_oku_fark2(tempsk[len(tempsk)-1], tempsraw[len(tempsraw)-1], sk1[i], temps1[j])
                 if x == 1:
                     dogru_sk.pop(len(dogru_sk) - 1)
                     if j == 0:
@@ -116,8 +121,8 @@ def main(image1, image2, s, coords):
                         dogru_sk.append("C")
                     else:
                         dogru_sk.append("D")
-                    cv2.rectangle(thresh2, (koordinat_sk[i - 1][0], koordinat_sk[i - 1][1]),
-                                  ((koordinat_sk1[i - 1][0]), (koordinat_sk1[i - 1][1])), (0, 0, 255), 5)
+                    cv2.rectangle(thresh2, (tempscoord[len(tempscoord)-1][0], tempscoord[len(tempscoord)-1][1]),
+                                  ((tempscoord1[len(tempscoord)-1][0]), (tempscoord[len(tempscoord)-1][1])), (0, 0, 255), 5)
                     cv2.rectangle(thresh2, (koordinat_sk[i][0], koordinat_sk[i][1]),
                                   ((koordinat_sk1[i][0]), (koordinat_sk1[i][1])), (0, 255, 0), 5)
                 else:
@@ -132,15 +137,20 @@ def main(image1, image2, s, coords):
                     else:
                         dogru_sk.append("D")
 
-                    cv2.rectangle(thresh2, (koordinat_sk[i - 1][0], koordinat_sk[i - 1][1]),
-                                  ((koordinat_sk1[i - 1][0]), (koordinat_sk1[i - 1][1])), (0, 255, 0), 5)
+                    cv2.rectangle(thresh2, (tempscoord[len(tempscoord)-1][0], tempscoord[len(tempscoord)-1][1]),
+                                  ((tempscoord1[len(tempscoord)-1][0]), (tempscoord[len(tempscoord)-1][1])), (0, 255, 0), 5)
                     cv2.rectangle(thresh2, (koordinat_sk[i][0], koordinat_sk[i][1]),
                                   ((koordinat_sk1[i][0]), (koordinat_sk1[i][1])), (0, 0, 255), 5)
 
         else:
             cv2.rectangle(thresh2, (koordinat_sk[i][0], koordinat_sk[i][1]),
                           ((koordinat_sk1[i][0]), (koordinat_sk1[i][1])), (0, 0, 255), 5)
-        i += 1
+        if j == 3 and len(birden_fazla) != int(i / 4) + 1:
+            birden_fazla.append(int(i / 4) + 1)
+            dogru_sk.append("O")
+            i += 1
+        else:
+            i += 1
 
     # -------------------------------------------------------------------------------------------------------------------------------------------------------------
     print("-------------------------------------------------------")
@@ -151,4 +161,5 @@ def main(image1, image2, s, coords):
     print("Sistem Çalışma Süresi:", (finish_time) - (start_time), "Ms")
 
     return dogru_sk
+
 
