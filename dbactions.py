@@ -26,10 +26,20 @@ def dbgetbarcode(connection, barcode_id):
 
         positions = positions[0][0][1:len(positions[0][0]) - 1]
 
-        sql = "SELECT aday_id FROM barcode WHERE barcode_id = %s"
+        sql = "SELECT kitapcik_id FROM barcode WHERE barcode_id = %s"
         cursor.execute(sql, barcode_id)
+        kitapcik_id = cursor.fetchall()
+
+        kitapcik_id = kitapcik_id[0][0]
+
+
+
+        sql = "SELECT aday_id FROM kitapciks WHERE id = %s"
+        cursor.execute(sql, kitapcik_id)
         aday_id = cursor.fetchall()
         aday_id = aday_id[0][0]
+
+
         cursor.close()
 
     return positions, aday_id
@@ -43,7 +53,7 @@ def dbinsert (connection, aday_id, kitapcik_id, cevaplar):
     result = cursor.fetchall()
 
     if not result:
-        print(result)
+
         sql = "INSERT INTO cevap (id, aday_id, kitapcik_id, cevaplar) VALUES (NULL, %s, %s, %s)"
         cursor.execute(sql, (aday_id, kitapcik_id, cevaplar))
         connection.commit()

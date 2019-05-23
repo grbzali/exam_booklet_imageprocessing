@@ -41,6 +41,8 @@ def main(image1, image2, s, coords):
     tempsraw = []
     tempscoord = []
     tempscoord1 = []
+    tempj = []
+    tempsentry = []
     for i in range(len(coords["sorular"])):
         for sklar in coords["sorular"][i]:
             sk.append(thresh2[int((sorular[i][sklar]["center"]["first"]["y"])):int((sorular[i][sklar]["center"]["second"]["y"])),
@@ -89,10 +91,12 @@ def main(image1, image2, s, coords):
 
         if siyah_fark > 250:
 
+            tempj.append(i % 4)
             tempsk.append(sk1[i])
             tempsraw.append(temps1[j])
             tempscoord.append(koordinat_sk[i])
             tempscoord1.append(koordinat_sk1[i])
+            tempsentry.append(int(i/4))
 
             if len(birden_fazla) != int(i / 4) + 1:
                 birden_fazla.append(int(i / 4) + 1)
@@ -108,9 +112,10 @@ def main(image1, image2, s, coords):
                     dogru_sk.append("D")
                 cv2.rectangle(thresh2, (koordinat_sk[i][0], koordinat_sk[i][1]), ((koordinat_sk1[i][0]), (koordinat_sk1[i][1])), (0, 255, 0), 5)
             else:
-                print((i/4) + 1, ".soru", int(j+1), ".şıkkı farkı---->", siyah_fark)
+                print((i/4) + 1, ".soru", int(j+1), "2dogru.şıkkı farkı---->", siyah_fark)
 
-                x = cevap_oku_fark2(tempsk[len(tempsk)-1], tempsraw[len(tempsraw)-1], sk1[i], temps1[j])
+                x = cevap_oku_fark2(tempsk[len(tempsk)-2], tempsraw[len(tempsraw)-2], sk1[i], temps1[j])
+
                 if x == 1:
                     dogru_sk.pop(len(dogru_sk) - 1)
                     if j == 0:
@@ -121,13 +126,45 @@ def main(image1, image2, s, coords):
                         dogru_sk.append("C")
                     else:
                         dogru_sk.append("D")
-                    cv2.rectangle(thresh2, (tempscoord[len(tempscoord)-1][0], tempscoord[len(tempscoord)-1][1]),
-                                  ((tempscoord1[len(tempscoord)-1][0]), (tempscoord[len(tempscoord)-1][1])), (0, 0, 255), 5)
+
+
+                    cv2.rectangle(thresh2, (tempscoord[len(tempscoord)-2][0], tempscoord[len(tempscoord)-2][1]),
+                                  ((tempscoord1[len(tempscoord)-2][0]), (tempscoord[len(tempscoord)-2][1])), (0, 0, 255), 5)
+
+
                     cv2.rectangle(thresh2, (koordinat_sk[i][0], koordinat_sk[i][1]),
                                   ((koordinat_sk1[i][0]), (koordinat_sk1[i][1])), (0, 255, 0), 5)
                 else:
                     dogru_sk.pop(len(dogru_sk) - 1)
-                    j -= 1
+                    j = tempj[len(tempj)-2]
+                    print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx---", tempj.count(int(i / 4) + 1))
+                    print("tempj", tempj)
+
+                    # if tempj.count(int(i/4) + 1) > 2:
+                    #     print(tempj)
+                    #     print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx---", tempj.count(int(i/4) + 1))
+                    #     dogru_sk.append('X')
+
+
+                    #     cv2.rectangle(thresh2, (tempscoord[len(tempscoord) - 1][0], tempscoord[len(tempscoord) - 1][1]),
+                    #                   ((tempscoord1[len(tempscoord) - 1][0]), (tempscoord[len(tempscoord) - 1][1])),
+                    #                   (0, 0, 255), 5)
+                    #     cv2.rectangle(thresh2, (tempscoord[len(tempscoord) - 2][0], tempscoord[len(tempscoord) - 2][1]),
+                    #                   ((tempscoord1[len(tempscoord) - 2][0]), (tempscoord[len(tempscoord) - 2][1])),
+                    #                   (0, 0, 255), 5)
+                    #     cv2.rectangle(thresh2, (tempscoord[len(tempscoord) - 3][0], tempscoord[len(tempscoord) - 3][1]),
+                    #                   ((tempscoord1[len(tempscoord) - 3][0]), (tempscoord[len(tempscoord) - 3][1])),
+                    #                   (0, 0, 255), 5)
+                    #     dogru_sk.pop(len(dogru_sk)-1)
+                    #     dogru_sk.append("X")
+                    # else:
+
+                    # else:
+                    del tempsk[-1]
+                    del tempsraw[-1]
+                    del tempscoord[-1]
+                    del tempscoord1[-1]
+                    del tempj[-1]
                     if j == 0:
                         dogru_sk.append("A")
                     elif j == 1:
@@ -137,19 +174,23 @@ def main(image1, image2, s, coords):
                     else:
                         dogru_sk.append("D")
 
-                    cv2.rectangle(thresh2, (tempscoord[len(tempscoord)-1][0], tempscoord[len(tempscoord)-1][1]),
-                                  ((tempscoord1[len(tempscoord)-1][0]), (tempscoord[len(tempscoord)-1][1])), (0, 255, 0), 5)
+                    cv2.rectangle(thresh2, (tempscoord[len(tempscoord)-2][0], tempscoord[len(tempscoord)-2][1]),
+                                  ((tempscoord1[len(tempscoord)-2][0]), (tempscoord[len(tempscoord)-2][1])), (0, 255, 0), 5)
+
+
                     cv2.rectangle(thresh2, (koordinat_sk[i][0], koordinat_sk[i][1]),
                                   ((koordinat_sk1[i][0]), (koordinat_sk1[i][1])), (0, 0, 255), 5)
-
         else:
             cv2.rectangle(thresh2, (koordinat_sk[i][0], koordinat_sk[i][1]),
                           ((koordinat_sk1[i][0]), (koordinat_sk1[i][1])), (0, 0, 255), 5)
+
         if j == 3 and len(birden_fazla) != int(i / 4) + 1:
             birden_fazla.append(int(i / 4) + 1)
             dogru_sk.append("O")
             i += 1
+
         else:
+
             i += 1
 
     # -------------------------------------------------------------------------------------------------------------------------------------------------------------

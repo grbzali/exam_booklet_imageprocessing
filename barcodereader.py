@@ -6,7 +6,6 @@ from pdf2image import convert_from_path
 import skew_positions
 import rotate_img
 import skew_image
-import creat_temps
 import json
 from main_img import main
 import dbactions
@@ -68,16 +67,18 @@ kitapcik_id_temp1 = []
 cevap_sk = ''
 sumdogru_sk = []
 dogru_sk = []
+temp_aday_id = []
+
 while i <= (jpg_say):
     print("i değeri", i)
 
     im = 0
     if i < 10:
-        im = cv2.imread('C:\\Users\\NovaPM\\Desktop\\denemes\\isaretli\\sayfa-0' + str(i) + '.jpg')
-        im1 = cv2.imread('C:\\Users\\NovaPM\\Desktop\\denemes\\isaretsiz\\sayfa-0' + str(i) + '.jpg')
+        im = cv2.imread('C:\\Users\\NovaPM\\Desktop\\Barkod_okuyucu\\isaretli\\sayfa-0'+str(i)+'.jpg')
+        im1 = cv2.imread('C:\\Users\\NovaPM\\Desktop\\Barkod_okuyucu\\isaretsiz\\sayfa-0' + str(i) + '.jpg')
     else:
-        im = cv2.imread('C:\\Users\\NovaPM\\Desktop\\denemes\\isaretli\\sayfa-' + str(i) + '.jpg')
-        im1 = cv2.imread('C:\\Users\\NovaPM\\Desktop\\denemes\\isaretsiz\\sayfa-' + str(i) + '.jpg')
+        im = cv2.imread('C:\\Users\\NovaPM\\Desktop\\Barkod_okuyucu\\isaretli\\sayfa-' + str(i) + '.jpg')
+        im1 = cv2.imread('C:\\Users\\NovaPM\\Desktop\\Barkod_okuyucu\\isaretsiz\\sayfa-' + str(i) + '.jpg')
 
     decodedObjects, data = decode(im)
 
@@ -92,7 +93,7 @@ while i <= (jpg_say):
         # print(data[0:-4])
          # print(data[9:-1])
 
-        page_id = data[2:]
+        barcode = data[2:]
         kitapcik_id = data[2:9]
 
         kitapcik_id_temp.append(kitapcik_id)
@@ -108,7 +109,9 @@ while i <= (jpg_say):
 
         connection = dbactions.dbconnect()
 
-        positions, aday_id = dbactions.dbgetbarcode(connection, page_id)
+        positions, aday_id = dbactions.dbgetbarcode(connection, barcode)
+
+        temp_aday_id.append(aday_id)
 
         y = json.loads(positions)
 
@@ -121,8 +124,6 @@ while i <= (jpg_say):
         farktemp2 = len(dogru_sk)
 
         sayıfark = farktemp2-farktemp
-        print(sayıfark)
-
 
         if kitapcik_id_temp[j] != kitapcik_id_temp[j-1]:
 
@@ -131,16 +132,14 @@ while i <= (jpg_say):
 
             dogru_sk1 = dogru_sk1[::-1]
 
-
-
             for k in range(len(dogru_sk1)-1, -1, -1):
 
                  cevap_sk += dogru_sk1[k]
 
             print("Kitapçık cevapları için")
-            print(dogru_sk1, " -------", cevap_sk)
+            print(dogru_sk1, " ------- ", cevap_sk)
 
-            dbactions.dbinsert(connection, aday_id, kitapcik_id_temp[j-1], cevap_sk)
+            dbactions.dbinsert(connection, temp_aday_id[len(temp_aday_id)-2], kitapcik_id_temp[j-1], cevap_sk)
             cevap_sk = ''
 
         elif i == jpg_say:
@@ -151,6 +150,7 @@ while i <= (jpg_say):
                 cevap_sk += dogru_sk[k]
 
             print("Son kitapçık cevapları için")
+            print(dogru_sk, "----------", cevap_sk)
             dbactions.dbinsert(connection, aday_id, kitapcik_id, cevap_sk)
 
         else:

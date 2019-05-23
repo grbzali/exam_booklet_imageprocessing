@@ -27,7 +27,7 @@ def cevap_oku_fark2(image1, temp1, image2, temp2):
                     say_siyah += 1  # siyah pixeller sayılıyor
         secim.append(say_siyah)  # hesaplanan siyah pikseller seçim dizisine atanıyor
         x += 2
-    print("secim dizisi", secim)
+
     fark = secim[0] - secim[1]  # gelen iki şıkkın işaret piksel farkı bulunuyor
     if fark > 50:  # belirlenen eşiğin üstünde olan doğru şık olarak return ediliyor
         return 0
