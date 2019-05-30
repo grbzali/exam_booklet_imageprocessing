@@ -10,7 +10,7 @@ def cevap_oku_fark2(image1, temp1, image2, temp2):
     secim = []  # şıkları karşılaştırmak için seçim dizisi oluşturuldu
     while x < len(gelen):
 
-        fark = cv2.addWeighted(gelen[x], 0.7, gelen[x + 1], 0.3, 0)  # işaretli şık işaretlenmemiş şıkkın üzerinde saydam bir şekilde yerleştiriliyor
+        fark = cv2.addWeighted(gelen[x], 0.8, gelen[x + 1], 0.2, 0)  # işaretli şık işaretlenmemiş şıkkın üzerinde saydam bir şekilde yerleştiriliyor
 
         fark[np.where((fark <= [20, 20, 20]).all(axis=2))] = [255, 255, 255]  # siyah olan pikseller siliniyor
 
@@ -26,10 +26,12 @@ def cevap_oku_fark2(image1, temp1, image2, temp2):
                 if px[k][t] == 0:
                     say_siyah += 1  # siyah pixeller sayılıyor
         secim.append(say_siyah)  # hesaplanan siyah pikseller seçim dizisine atanıyor
+
         x += 2
 
     fark = secim[0] - secim[1]  # gelen iki şıkkın işaret piksel farkı bulunuyor
-    if fark > 50:  # belirlenen eşiğin üstünde olan doğru şık olarak return ediliyor
+    print(secim)
+    if fark > 0:  # belirlenen eşiğin üstünde olan doğru şık olarak return ediliyor
         return 0
     else:
         return 1

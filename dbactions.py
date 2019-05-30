@@ -26,12 +26,13 @@ def dbgetbarcode(connection, barcode_id):
 
         positions = positions[0][0][1:len(positions[0][0]) - 1]
 
+
+
         sql = "SELECT kitapcik_id FROM barcode WHERE barcode_id = %s"
         cursor.execute(sql, barcode_id)
         kitapcik_id = cursor.fetchall()
 
         kitapcik_id = kitapcik_id[0][0]
-
 
 
         sql = "SELECT aday_id FROM kitapciks WHERE id = %s"
@@ -62,6 +63,7 @@ def dbinsert (connection, aday_id, kitapcik_id, cevaplar):
     else:
 
         print("Aynı aday ve kitapçığa ait cevap kaydı bulunuyor...!")
+
 
 
 

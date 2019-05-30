@@ -9,6 +9,8 @@ import skew_image
 import json
 from main_img import main
 import dbactions
+import time
+start_time = int(round(time.time() * 1000))
 
 def decode(im):
     # Find barcodes and QR codes
@@ -45,7 +47,7 @@ def display(im, decodedObjects):
             cv2.line(im, hull[j], hull[(j + 1) % n], (255, 0, 0), 3)
 
     # Display results
-    im = cv2.resize(im, None, fx=0.25, fy=0.25, interpolation=cv2.INTER_CUBIC)
+    #im = cv2.resize(im, None, fx=0.25, fy=0.25, interpolation=cv2.INTER_CUBIC)
     #cv2.imshow("Results", im);
     #cv2.waitKey(0);
 
@@ -63,6 +65,7 @@ print(" Dizinde", jpg_say, "Image bulunuyor.")
 
 i = 1
 j = 0
+pos = 0
 kitapcik_id_temp1 = []
 cevap_sk = ''
 sumdogru_sk = []
@@ -71,16 +74,23 @@ temp_aday_id = []
 
 while i <= (jpg_say):
     print("i değeri", i)
+    finish_time = int(round(time.time() * 1000))
+    print("imreadönce", (finish_time) - (start_time), "Ms")
 
     im = 0
     if i < 10:
         im = cv2.imread('C:\\Users\\NovaPM\\Desktop\\Barkod_okuyucu\\isaretli\\sayfa-0'+str(i)+'.jpg')
-        im1 = cv2.imread('C:\\Users\\NovaPM\\Desktop\\Barkod_okuyucu\\isaretsiz\\sayfa-0' + str(i) + '.jpg')
+        #im1 = cv2.imread('C:\\Users\\NovaPM\\Desktop\\Barkod_okuyucu\\isaretsiz\\sayfa-0' + str(i) + '.jpg')
     else:
         im = cv2.imread('C:\\Users\\NovaPM\\Desktop\\Barkod_okuyucu\\isaretli\\sayfa-' + str(i) + '.jpg')
-        im1 = cv2.imread('C:\\Users\\NovaPM\\Desktop\\Barkod_okuyucu\\isaretsiz\\sayfa-' + str(i) + '.jpg')
+        #im1 = cv2.imread('C:\\Users\\NovaPM\\Desktop\\Barkod_okuyucu\\isaretsiz\\sayfa-' + str(i) + '.jpg')
+
+    finish_time = int(round(time.time() * 1000))
+    print("decodeönce", (finish_time) - (start_time), "Ms")
 
     decodedObjects, data = decode(im)
+    finish_time = int(round(time.time() * 1000))
+    print("decode sonra", (finish_time) - (start_time), "Ms")
 
     if decodedObjects == []:
         print("barkod bulunamadı")
@@ -89,23 +99,41 @@ while i <= (jpg_say):
 
         continue
     else:
-        display(im, decodedObjects)
+        #display(im, decodedObjects)
         # print(data[0:-4])
-         # print(data[9:-1])
+        # print(data[9:-1])
 
         barcode = data[2:]
         kitapcik_id = data[2:9]
-
+        print(kitapcik_id)
         kitapcik_id_temp.append(kitapcik_id)
 
+        finish_time = int(round(time.time() * 1000))
+        print("rotated_image önce", (finish_time) - (start_time), "Ms")
+
         rotated_image1 = rotate_img.rotate(im)
-        rotated_image2 = rotate_img.rotate(im1)
+        finish_time = int(round(time.time() * 1000))
+        print("ilk rotated_image sonra", (finish_time) - (start_time), "Ms")
+
+        #rotated_image2 = rotate_img.rotate(im1)
+        finish_time = int(round(time.time() * 1000))
+        print("ikinci rotated_image sonra", (finish_time) - (start_time), "Ms")
 
         coords_marked = skew_positions.get_positions(rotated_image1)
-        coords_raw = skew_positions.get_positions(rotated_image2)
+        finish_time = int(round(time.time() * 1000))
+        print("coords_image sonra", (finish_time) - (start_time), "Ms")
+
+        #coords_raw = skew_positions.get_positions(rotated_image2)
+        #finish_time = int(round(time.time() * 1000))
+        #print("coords2_image sonra", (finish_time) - (start_time), "Ms")
 
         images1 = skew_image.skew(coords_marked, rotated_image1)
-        images2 = skew_image.skew(coords_raw, rotated_image2)
+        finish_time = int(round(time.time() * 1000))
+        print("1skew_imagesonra", (finish_time) - (start_time), "Ms")
+
+        #images2 = skew_image.skew(coords_raw, rotated_image2)
+        #finish_time = int(round(time.time() * 1000))
+        #print("2.skew_imagesonra", (finish_time) - (start_time), "Ms")
 
         connection = dbactions.dbconnect()
 
@@ -119,7 +147,12 @@ while i <= (jpg_say):
 
         farktemp = len(dogru_sk)
 
-        dogru_sk = main(images1, images2, i, y)
+        finish_time = int(round(time.time() * 1000))
+        print("main öncesi", (finish_time) - (start_time), "Ms")
+
+        dogru_sk = main(images1, i, y)
+        finish_time = int(round(time.time() * 1000))
+        print("main_sonrası", (finish_time) - (start_time), "Ms")
 
         farktemp2 = len(dogru_sk)
 
@@ -155,5 +188,7 @@ while i <= (jpg_say):
 
         else:
             print('Kitapçık tamamlanmadı.')
+        finish_time = int(round(time.time() * 1000))
+        print("imageson", (finish_time) - (start_time), "Ms")
         j += 1
         i += 1

@@ -1,6 +1,4 @@
 import cv2
-import numpy as np
-import json
 from iki_cevap_fark import cevap_oku_fark2
 import time
 start_time = int(round(time.time() * 1000))
@@ -15,11 +13,13 @@ D_temp1 = cv2.imread('C:\\Users\\NovaPM\\Desktop\\temps\\D.png')
 ret, D_temp1 = cv2.threshold(D_temp1, 200, 255, cv2.THRESH_BINARY)
 
 temps1 = [A_temp1, B_temp1, C_temp1, D_temp1]
+finish_time = int(round(time.time() * 1000))
+print("tempokumasonrası", (finish_time) - (start_time), "Ms")
 
 dogru_sk = []
 farkpx = []
-def main(image1, image2, s, coords):
 
+def main(image1, s, coords):
 
     sk = []
     sk1 = []
@@ -27,9 +27,9 @@ def main(image1, image2, s, coords):
     sorular = coords["sorular"]
     print("KİTAPÇIK NO:", s)
     img_rgb = image1  # işaretli görüntü
-    img_gray = image2  # ham görüntü
+    #img_gray = image2  # ham görüntü
     birden_fazla = []
-    img_gray = cv2.cvtColor(img_gray, cv2.COLOR_BGR2GRAY)  # ham görüntünün gri tona çevirilmesi
+    #img_gray = cv2.cvtColor(img_gray, cv2.COLOR_BGR2GRAY)  # ham görüntünün gri tona çevirilmesi
     ret, thresh2 = cv2.threshold(img_rgb, 200, 255, cv2.THRESH_BINARY)  # ham görüntünün binary tabana çevirilmesi
     ret, thresh3 = cv2.threshold(img_rgb, 200, 255, cv2.THRESH_BINARY)  # iki şık ve fazla işaret saptandığında bu görüntüden kırpılıp gönderiliyor fark metoduna
 
@@ -43,6 +43,10 @@ def main(image1, image2, s, coords):
     tempscoord1 = []
     tempj = []
     tempsentry = []
+    tempi4 = []
+    finish_time = int(round(time.time() * 1000))
+    print("jsonatamalaroncesi", (finish_time) - (start_time), "Ms")
+
     for i in range(len(coords["sorular"])):
         for sklar in coords["sorular"][i]:
             sk.append(thresh2[int((sorular[i][sklar]["center"]["first"]["y"])):int((sorular[i][sklar]["center"]["second"]["y"])),
@@ -51,6 +55,9 @@ def main(image1, image2, s, coords):
                                 int((sorular[i][sklar]["center"]["first"]["x"]))-50:int((sorular[i][sklar]["center"]["second"]["x"]))])#coklu cevaplar için aynı şekilde sıklar sk1 e alındı.
             koordinat_sk.append((int((sorular[i][sklar]["center"]["first"]["x"]))-50, int((sorular[i][sklar]["center"]["first"]["y"])))) #rectangle kullanmak için şıkların ilk koordinatları alndı
             koordinat_sk1.append((int((sorular[i][sklar]["center"]["second"]["x"])), int((sorular[i][sklar]["center"]["second"]["y"])))) #rectangle kullanmak için şıkların ikinci koordinatları alndı0
+
+    finish_time = int(round(time.time() * 1000))
+    print("jsonatamalarsonra", (finish_time) - (start_time), "Ms")
 
     i = 0
     while i < sk_say:
@@ -77,6 +84,9 @@ def main(image1, image2, s, coords):
         say_fark = 0  # siyah pixel saydırmak için sayaç tutuluyor
         say_fark1 = 0
 
+        finish_time = int(round(time.time() * 1000))
+        print("sayfarkonce", (finish_time) - (start_time), "Ms")
+
         for k in range(0, 70):
             for t in range(0, 150):
                 if px[k][t] == 0:
@@ -87,20 +97,23 @@ def main(image1, image2, s, coords):
                 if px1[k][t] == 0:
                     say_fark1 += 1  # siyah pixeller sayılıyor
 
+        finish_time = int(round(time.time() * 1000))
+        print("sayfarksonra", (finish_time) - (start_time), "Ms")
+
         siyah_fark = abs(say_fark1 - say_fark)
 
         if siyah_fark > 250:
 
+            tempsentry.append(int(i/4))
             tempj.append(i % 4)
+            print("i%4---", i % 4, "i/4---", int(i/4))
             tempsk.append(sk1[i])
             tempsraw.append(temps1[j])
             tempscoord.append(koordinat_sk[i])
             tempscoord1.append(koordinat_sk1[i])
-            tempsentry.append(int(i/4))
 
             if len(birden_fazla) != int(i / 4) + 1:
                 birden_fazla.append(int(i / 4) + 1)
-
                 print(int(i / 4) + 1, ". sorunun ", int(j + 1), ". şıkkı-->farkı", siyah_fark)
                 if j == 0:
                     dogru_sk.append("A")
@@ -112,77 +125,82 @@ def main(image1, image2, s, coords):
                     dogru_sk.append("D")
                 cv2.rectangle(thresh2, (koordinat_sk[i][0], koordinat_sk[i][1]), ((koordinat_sk1[i][0]), (koordinat_sk1[i][1])), (0, 255, 0), 5)
             else:
-                print((i/4) + 1, ".soru", int(j+1), "2dogru.şıkkı farkı---->", siyah_fark)
+                print(int(i/4) + 1, ".sorunun", int(j+1), ".  2.dogru.şıkkı farkı---->", siyah_fark)
 
-                x = cevap_oku_fark2(tempsk[len(tempsk)-2], tempsraw[len(tempsraw)-2], sk1[i], temps1[j])
+                if tempsentry.count(int(i/4)) > 2:
 
-                if x == 1:
-                    dogru_sk.pop(len(dogru_sk) - 1)
-                    if j == 0:
-                        dogru_sk.append("A")
-                    elif j == 1:
-                        dogru_sk.append("B")
-                    elif j == 2:
-                        dogru_sk.append("C")
-                    else:
-                        dogru_sk.append("D")
+                    dogru_sk.pop(len(dogru_sk)-1)
+                    dogru_sk.append('X')
 
 
-                    cv2.rectangle(thresh2, (tempscoord[len(tempscoord)-2][0], tempscoord[len(tempscoord)-2][1]),
-                                  ((tempscoord1[len(tempscoord)-2][0]), (tempscoord[len(tempscoord)-2][1])), (0, 0, 255), 5)
-
-
-                    cv2.rectangle(thresh2, (koordinat_sk[i][0], koordinat_sk[i][1]),
-                                  ((koordinat_sk1[i][0]), (koordinat_sk1[i][1])), (0, 255, 0), 5)
-                else:
-                    dogru_sk.pop(len(dogru_sk) - 1)
-                    j = tempj[len(tempj)-2]
-                    print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx---", tempj.count(int(i / 4) + 1))
-                    print("tempj", tempj)
-
-                    # if tempj.count(int(i/4) + 1) > 2:
-                    #     print(tempj)
-                    #     print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx---", tempj.count(int(i/4) + 1))
-                    #     dogru_sk.append('X')
-
-
-                    #     cv2.rectangle(thresh2, (tempscoord[len(tempscoord) - 1][0], tempscoord[len(tempscoord) - 1][1]),
-                    #                   ((tempscoord1[len(tempscoord) - 1][0]), (tempscoord[len(tempscoord) - 1][1])),
-                    #                   (0, 0, 255), 5)
-                    #     cv2.rectangle(thresh2, (tempscoord[len(tempscoord) - 2][0], tempscoord[len(tempscoord) - 2][1]),
-                    #                   ((tempscoord1[len(tempscoord) - 2][0]), (tempscoord[len(tempscoord) - 2][1])),
-                    #                   (0, 0, 255), 5)
-                    #     cv2.rectangle(thresh2, (tempscoord[len(tempscoord) - 3][0], tempscoord[len(tempscoord) - 3][1]),
-                    #                   ((tempscoord1[len(tempscoord) - 3][0]), (tempscoord[len(tempscoord) - 3][1])),
-                    #                   (0, 0, 255), 5)
-                    #     dogru_sk.pop(len(dogru_sk)-1)
-                    #     dogru_sk.append("X")
-                    # else:
-
-                    # else:
                     del tempsk[-1]
+
                     del tempsraw[-1]
+
                     del tempscoord[-1]
+
                     del tempscoord1[-1]
-                    del tempj[-1]
-                    if j == 0:
-                        dogru_sk.append("A")
-                    elif j == 1:
-                        dogru_sk.append("B")
-                    elif j == 2:
-                        dogru_sk.append("C")
+
+
+                else:
+                    x = cevap_oku_fark2(tempsk[len(tempsk)-2], tempsraw[len(tempsraw)-2], tempsk[len(tempsk)-1], tempsraw[len(tempsraw)-1])
+
+                    if x == 1:
+                        dogru_sk.pop(len(dogru_sk) - 1)
+                        if j == 0:
+                            dogru_sk.append("A")
+                        elif j == 1:
+                            dogru_sk.append("B")
+                        elif j == 2:
+                            dogru_sk.append("C")
+                        else:
+                            dogru_sk.append("D")
+                        cv2.rectangle(thresh2, (tempscoord[len(tempscoord)-2][0], tempscoord[len(tempscoord)-2][1]),
+                                      ((tempscoord1[len(tempscoord)-2][0]), (tempscoord1[len(tempscoord)-2][1])), (0, 0, 255), 5)
+                        cv2.rectangle(thresh2, (tempscoord[len(tempscoord)-1][0], tempscoord[len(tempscoord)-1][1]),
+                                      ((tempscoord1[len(tempscoord)-1][0]), (tempscoord1[len(tempscoord)-1][1])), (0, 255, 0), 5)
                     else:
-                        dogru_sk.append("D")
 
-                    cv2.rectangle(thresh2, (tempscoord[len(tempscoord)-2][0], tempscoord[len(tempscoord)-2][1]),
-                                  ((tempscoord1[len(tempscoord)-2][0]), (tempscoord[len(tempscoord)-2][1])), (0, 255, 0), 5)
+                        dogru_sk.pop(len(dogru_sk) - 1)
+                        j = tempj[len(tempj)-2]
+                        print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx---", tempj.count(int(i / 4) + 1))
+                        # if tempj.count(int(i/4) + 1) > 2:
+                        #     print(tempj)
+                        #     print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx---", tempj.count(int(i/4) + 1))
+                        #     dogru_sk.append('X')
+                        #     cv2.rectangle(thresh2, (tempscoord[len(tempscoord) - 1][0], tempscoord[len(tempscoord) - 1][1]),
+                        #                   ((tempscoord1[len(tempscoord) - 1][0]), (tempscoord[len(tempscoord) - 1][1])),
+                        #                   (0, 0, 255), 5)
+                        #     cv2.rectangle(thresh2, (tempscoord[len(tempscoord) - 2][0], tempscoord[len(tempscoord) - 2][1]),
+                        #                   ((tempscoord1[len(tempscoord) - 2][0]), (tempscoord[len(tempscoord) - 2][1])),
+                        #                   (0, 0, 255), 5)
+                        #     cv2.rectangle(thresh2, (tempscoord[len(tempscoord) - 3][0], tempscoord[len(tempscoord) - 3][1]),
+                        #                   ((tempscoord1[len(tempscoord) - 3][0]), (tempscoord[len(tempscoord) - 3][1])),
+                        #                   (0, 0, 255), 5)
+                        #     dogru_sk.pop(len(dogru_sk)-1)
+                        #     dogru_sk.append("X")
+                        # else:
+                        # else:
+                        del tempj[-1]
+                        if j == 0:
+                            dogru_sk.append("A")
+                        elif j == 1:
+                            dogru_sk.append("B")
+                        elif j == 2:
+                            dogru_sk.append("C")
+                        else:
+                            dogru_sk.append("D")
+                        cv2.rectangle(thresh2, (tempscoord[len(tempscoord)-2][0], tempscoord[len(tempscoord)-2][1]),
+                                      ((tempscoord1[len(tempscoord)-2][0]), (tempscoord1[len(tempscoord)-2][1])), (0, 255, 0), 5)
+                        cv2.rectangle(thresh2, (tempscoord[len(tempscoord) - 1][0], tempscoord[len(tempscoord) - 1][1]),
+                                      ((tempscoord1[len(tempscoord) - 1][0]), (tempscoord1[len(tempscoord) - 1][1])),
+                                      (0, 0, 255), 5)
 
-
-                    cv2.rectangle(thresh2, (koordinat_sk[i][0], koordinat_sk[i][1]),
-                                  ((koordinat_sk1[i][0]), (koordinat_sk1[i][1])), (0, 0, 255), 5)
         else:
             cv2.rectangle(thresh2, (koordinat_sk[i][0], koordinat_sk[i][1]),
                           ((koordinat_sk1[i][0]), (koordinat_sk1[i][1])), (0, 0, 255), 5)
+        finish_time = int(round(time.time() * 1000))
+        print("dogrusksonrası", (finish_time) - (start_time), "Ms")
 
         if j == 3 and len(birden_fazla) != int(i / 4) + 1:
             birden_fazla.append(int(i / 4) + 1)
@@ -197,10 +215,15 @@ def main(image1, image2, s, coords):
     print("-------------------------------------------------------")
     print(birden_fazla)
     print("-------------------------------------------------------")
-    cv2.imwrite('C:\\Users\\NovaPM\\Desktop\\' + str(s) + '_dogru_cevap.png', thresh2)
+    print(dogru_sk)
+    finish_time = int(round(time.time() * 1000))
+    print("imreadoncesi", (finish_time) - (start_time), "Ms")
+
+    cv2.imwrite('C:\\Users\\NovaPM\\Desktop\\denemes\\result\\' + str(s) + '_dogru_cevap.png', thresh2)
     finish_time = int(round(time.time() * 1000))
     print("Sistem Çalışma Süresi:", (finish_time) - (start_time), "Ms")
 
     return dogru_sk
+
 
 
