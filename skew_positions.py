@@ -1,18 +1,11 @@
 import cv2
 import numpy as np
 
-temp_sol_ust = cv2.imread('C:\\Users\\NovaPM\\Desktop\\test_img\\sol_ust2.png', 0)
-temp_sag_ust = cv2.imread('C:\\Users\\NovaPM\\Desktop\\test_img\\sag_ust2.png', 0)
-temp_sol_alt = cv2.imread('C:\\Users\\NovaPM\\Desktop\\test_img\\sol_alt2.png', 0)
-temp_sag_alt = cv2.imread('C:\\Users\\NovaPM\\Desktop\\test_img\\sag_alt2.png', 0)
-w, h = temp_sol_ust.shape[::-1]
-
-def get_positions(image):
+def get_positions(image, temps, w, h):
     noise_image = image  # gelen görüntü değişkene atandı
 
     koordinatlar = []  # koordinatların tutulması için gerekli dizi tanımlandı
     image_gray = cv2.cvtColor(noise_image, cv2.COLOR_BGR2GRAY)  # gelen görüntü gri tona çevrildi
-    temps = [temp_sol_ust, temp_sag_ust, temp_sol_alt, temp_sag_alt]  # aranacak referanslar biz dizide tutuldu
 
     for x in temps:
         res = cv2.matchTemplate(image_gray, x,
@@ -29,6 +22,7 @@ def get_positions(image):
         if len(pt) != 0:  # pozisyon bilgileri koordinat dizisinde tutuluyor
             koordinat.append(pt[0])
             koordinat.append(pt[1])
+
         else:  # pozisyon bilgilerinin gelmemesi durumunda o değer sıfır olarak atanıyor
             koordinat.append(0)
             koordinat.append(0)
@@ -61,8 +55,7 @@ def get_positions(image):
             koordinatlar[3][0] = koordinatlar[1][0]
             koordinatlar[3][1] = koordinatlar[2][1]
 
-    elif len(
-            bulunamayanlar) > 1:  # 1' den fazla bulunamayan referans olması durumunda kağıt okunamadı bilgisi veriliyor.
+    elif len(bulunamayanlar) > 1:  # 1' den fazla bulunamayan referans olması durumunda kağıt okunamadı bilgisi veriliyor.
         print("Kağıt okunamadı!")
-    print(koordinatlar)
+
     return koordinatlar

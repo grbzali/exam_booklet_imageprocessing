@@ -1,9 +1,7 @@
 import cv2
 import numpy as np
-temp_sol_ust = cv2.imread('C:\\Users\\NovaPM\\Desktop\\test_img\\sol_ust2.png', 0)
-w, h = temp_sol_ust.shape[::-1]
 
-def skew(coords, image):
+def skew(coords, image, w, h):
     noise_image = image
     rows, cols, ch = noise_image.shape
     # w,h = image.shape[:2]                                                              #görüntünün yüksekliği ve genişliğini alır
@@ -18,8 +16,6 @@ def skew(coords, image):
     M = cv2.getPerspectiveTransform(pts1, pts2)
     width, hight = noise_image.shape[:2]
     dst = cv2.warpPerspective(noise_image, M, (2280, 3308))  # kırpma işlemi gerçekleştirilden sonra hedef görüntü dst değişkenine atanıyor
-
-
 
     # plt.subplot(121),plt.imshow(noise_image),plt.title('Input')
     # plt.subplot(122),plt.imshow(dst),plt.title('Output')

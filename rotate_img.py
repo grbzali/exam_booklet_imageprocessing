@@ -20,12 +20,18 @@ def rotate(image):
     (h, w) = image.shape[:2]  # görüntünün yüksekliği ve genişliği alınıyor
     center = (w // 2, h // 2)
     M = cv2.getRotationMatrix2D(center, angle, 1.0)  # döndürülecek görüntünün merkezi ve döndürülecek açı tanımlanıyor
-    rotated = cv2.warpAffine(image, M, (w, h),
-                             flags=cv2.INTER_CUBIC,
-                             borderMode=cv2.BORDER_REPLICATE)  # Affine dönüşümü uygulanıyor görüntü gelen açıya uygun şekilde döndürülüyor
+
+    rotated = cv2.warpAffine(image, M, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE)  # Affine dönüşümü uygulanıyor görüntü gelen açıya uygun şekilde döndürülüyor
 
     cv2.putText(rotated, "Angle: {:.2f} degrees".format(angle),
                 # kaç derece döndürüldüğü frame'in sol üst köşesine yazılıyor
                 (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 
+    # cv2.imshow('rotated', rotated)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+
     return rotated
+
+
+

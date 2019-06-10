@@ -10,6 +10,25 @@ import json
 from main_img import main
 import dbactions
 import time
+
+temp_sol_ust = cv2.imread('C:\\Users\\NovaPM\\Desktop\\test_img\\sol_ust2.png', 0)
+temp_sag_ust = cv2.imread('C:\\Users\\NovaPM\\Desktop\\test_img\\sag_ust2.png', 0)
+temp_sol_alt = cv2.imread('C:\\Users\\NovaPM\\Desktop\\test_img\\sol_alt2.png', 0)
+temp_sag_alt = cv2.imread('C:\\Users\\NovaPM\\Desktop\\test_img\\sag_alt2.png', 0)
+w, h = temp_sol_ust.shape[::-1]
+temps = [temp_sol_ust, temp_sag_ust, temp_sol_alt, temp_sag_alt]
+print(w, h)
+
+A_temp1 = cv2.imread('C:\\Users\\NovaPM\\Desktop\\temps\\A.png')
+ret, A_temp1 = cv2.threshold(A_temp1, 200, 255, cv2.THRESH_BINARY)
+B_temp1 = cv2.imread('C:\\Users\\NovaPM\\Desktop\\temps\\B.png')
+ret, B_temp1 = cv2.threshold(B_temp1, 200, 255, cv2.THRESH_BINARY)
+C_temp1 = cv2.imread('C:\\Users\\NovaPM\\Desktop\\temps\\C.png')
+ret, C_temp1 = cv2.threshold(C_temp1, 200, 255, cv2.THRESH_BINARY)
+D_temp1 = cv2.imread('C:\\Users\\NovaPM\\Desktop\\temps\\D.png')
+ret, D_temp1 = cv2.threshold(D_temp1, 200, 255, cv2.THRESH_BINARY)
+
+temps1 = [A_temp1, B_temp1, C_temp1, D_temp1]
 start_time = int(round(time.time() * 1000))
 
 def decode(im):
@@ -42,9 +61,18 @@ def display(im, decodedObjects):
         # Number of points in the convex hull
         n = len(hull)
 
+
+        if hull[0][1] > 2500:
+            return True
+            for j in range(0, len(hull)):
+                cv2.line(im, hull[j], hull[(j + 1) % n], (255, 0, 0), 3)
+
+        else:
+            for j in range(0, len(hull)):
+                cv2.line(im, hull[j], hull[(j + 1) % n], (255, 0, 0), 3)
+            return False
+
         # Draw the convext hull
-        for j in range(0, n):
-            cv2.line(im, hull[j], hull[(j + 1) % n], (255, 0, 0), 3)
 
     # Display results
     #im = cv2.resize(im, None, fx=0.25, fy=0.25, interpolation=cv2.INTER_CUBIC)
@@ -53,9 +81,10 @@ def display(im, decodedObjects):
 
 filename = 'C:\\Users\\NovaPM\\Desktop\\denemes\\test_b_kit.PDF'
 
-path = 'C:\\Users\\NovaPM\\Desktop\\denemes'
+path = 'C:\\Users\\NovaPM\\Desktop\\denemes\\isare'
 
-#images = convert_from_path('C:\\Users\\NovaPM\\Desktop\\denemes\\test_b_kit.PDF', dpi=300, output_folder=path, fmt='JPEG', output_file="sayfa") #pdf2image
+#pdf2image
+#images = convert_from_path('C:\\Users\\NovaPM\\Desktop\\denemes\\test\\11UY0011-2 Ahşap Kalıpçı(Seviye 3) A1 A Grubu.PDF', dpi=300, output_folder=path, fmt='JPEG', output_file="sayfa")
 
 kitapcik_id_temp = []
 kitapcik_id = 0
@@ -72,25 +101,25 @@ sumdogru_sk = []
 dogru_sk = []
 temp_aday_id = []
 
+
+#main loop
+
+
 while i <= (jpg_say):
+
     print("i değeri", i)
-    finish_time = int(round(time.time() * 1000))
-    print("imreadönce", (finish_time) - (start_time), "Ms")
 
     im = 0
     if i < 10:
-        im = cv2.imread('C:\\Users\\NovaPM\\Desktop\\Barkod_okuyucu\\isaretli\\sayfa-0'+str(i)+'.jpg')
+        im = cv2.imread('C:\\Users\\NovaPM\\Desktop\\denemes\\isaretli\\sayfa-0'+str(i)+'.jpg')
         #im1 = cv2.imread('C:\\Users\\NovaPM\\Desktop\\Barkod_okuyucu\\isaretsiz\\sayfa-0' + str(i) + '.jpg')
     else:
-        im = cv2.imread('C:\\Users\\NovaPM\\Desktop\\Barkod_okuyucu\\isaretli\\sayfa-' + str(i) + '.jpg')
+        im = cv2.imread('C:\\Users\\NovaPM\\Desktop\\denemes\\isaretli\\sayfa-' + str(i) + '.jpg')
         #im1 = cv2.imread('C:\\Users\\NovaPM\\Desktop\\Barkod_okuyucu\\isaretsiz\\sayfa-' + str(i) + '.jpg')
 
-    finish_time = int(round(time.time() * 1000))
-    print("decodeönce", (finish_time) - (start_time), "Ms")
+#----barkod kontrol
 
     decodedObjects, data = decode(im)
-    finish_time = int(round(time.time() * 1000))
-    print("decode sonra", (finish_time) - (start_time), "Ms")
 
     if decodedObjects == []:
         print("barkod bulunamadı")
@@ -99,96 +128,107 @@ while i <= (jpg_say):
 
         continue
     else:
-        #display(im, decodedObjects)
-        # print(data[0:-4])
-        # print(data[9:-1])
+
+        a = display(im, decodedObjects)
 
         barcode = data[2:]
         kitapcik_id = data[2:9]
         print(kitapcik_id)
         kitapcik_id_temp.append(kitapcik_id)
 
-        finish_time = int(round(time.time() * 1000))
-        print("rotated_image önce", (finish_time) - (start_time), "Ms")
-
-        rotated_image1 = rotate_img.rotate(im)
-        finish_time = int(round(time.time() * 1000))
-        print("ilk rotated_image sonra", (finish_time) - (start_time), "Ms")
-
-        #rotated_image2 = rotate_img.rotate(im1)
-        finish_time = int(round(time.time() * 1000))
-        print("ikinci rotated_image sonra", (finish_time) - (start_time), "Ms")
-
-        coords_marked = skew_positions.get_positions(rotated_image1)
-        finish_time = int(round(time.time() * 1000))
-        print("coords_image sonra", (finish_time) - (start_time), "Ms")
-
-        #coords_raw = skew_positions.get_positions(rotated_image2)
-        #finish_time = int(round(time.time() * 1000))
-        #print("coords2_image sonra", (finish_time) - (start_time), "Ms")
-
-        images1 = skew_image.skew(coords_marked, rotated_image1)
-        finish_time = int(round(time.time() * 1000))
-        print("1skew_imagesonra", (finish_time) - (start_time), "Ms")
-
-        #images2 = skew_image.skew(coords_raw, rotated_image2)
-        #finish_time = int(round(time.time() * 1000))
-        #print("2.skew_imagesonra", (finish_time) - (start_time), "Ms")
-
+        # veritabanı pozisyon ve id sorguları
         connection = dbactions.dbconnect()
 
         positions, aday_id = dbactions.dbgetbarcode(connection, barcode)
-
         temp_aday_id.append(aday_id)
 
         y = json.loads(positions)
 
-        # temps = creat_temps.temps(images2, y, i)
+        if a == False:
 
-        farktemp = len(dogru_sk)
+            print("barkod bulunamadı")
+            i += 1
 
-        finish_time = int(round(time.time() * 1000))
-        print("main öncesi", (finish_time) - (start_time), "Ms")
-
-        dogru_sk = main(images1, i, y)
-        finish_time = int(round(time.time() * 1000))
-        print("main_sonrası", (finish_time) - (start_time), "Ms")
-
-        farktemp2 = len(dogru_sk)
-
-        sayıfark = farktemp2-farktemp
-
-        if kitapcik_id_temp[j] != kitapcik_id_temp[j-1]:
-
-            dogru_sk1 = dogru_sk[0:len(dogru_sk) - sayıfark]
-            del dogru_sk[:len(dogru_sk)-sayıfark]
-
-            dogru_sk1 = dogru_sk1[::-1]
-
-            for k in range(len(dogru_sk1)-1, -1, -1):
-
-                 cevap_sk += dogru_sk1[k]
-
-            print("Kitapçık cevapları için")
-            print(dogru_sk1, " ------- ", cevap_sk)
-
-            dbactions.dbinsert(connection, temp_aday_id[len(temp_aday_id)-2], kitapcik_id_temp[j-1], cevap_sk)
-            cevap_sk = ''
-
-        elif i == jpg_say:
-            dogru_sk = dogru_sk[::-1]
-            cevap_sk = ''
-            for k in range(len(dogru_sk)-1, -1, -1):
-
-                cevap_sk += dogru_sk[k]
-
-            print("Son kitapçık cevapları için")
-            print(dogru_sk, "----------", cevap_sk)
-            dbactions.dbinsert(connection, aday_id, kitapcik_id, cevap_sk)
+            continue
 
         else:
-            print('Kitapçık tamamlanmadı.')
-        finish_time = int(round(time.time() * 1000))
-        print("imageson", (finish_time) - (start_time), "Ms")
-        j += 1
-        i += 1
+
+    #----rotate
+            e1 = cv2.getTickCount()
+
+            rotated_image1 = rotate_img.rotate(im)
+
+            e2 = cv2.getTickCount()
+            t = (e2 - e1) / cv2.getTickFrequency()
+            print("rotated image ", t*1000, "ms")
+            #rotated_image2 = rotate_img.rotate(im1)
+
+    #skew için köşe koordinatları alma
+            e1 = cv2.getTickCount()
+
+            coords_marked = skew_positions.get_positions(rotated_image1, temps, w, h)
+            #coords_raw = skew_positions.get_positions(rotated_image2)
+
+            e2 = cv2.getTickCount()
+            t = (e2 - e1) / cv2.getTickFrequency()
+            print("position image ", t*1000, "ms")
+
+    #kesme işlemi
+
+            e1 = cv2.getTickCount()
+
+            images1 = skew_image.skew(coords_marked, rotated_image1, w, h)
+            #images2 = skew_image.skew(coords_raw, rotated_image2)
+
+            e2 = cv2.getTickCount()
+            t = (e2 - e1) / cv2.getTickFrequency()
+            print("skew image ", t * 1000, "ms")
+
+            # temps = creat_temps.temps(images2, y, i)
+
+            farktemp = len(dogru_sk)
+            e1 = cv2.getTickCount()
+
+            dogru_sk = main(images1, i, y, temps1)
+
+            e2 = cv2.getTickCount()
+            t = (e2 - e1) / cv2.getTickFrequency()
+            print("main ", t * 1000, "ms")
+            farktemp2 = len(dogru_sk)
+
+            sayıfark = farktemp2-farktemp
+
+    #okunan sayfaların kitapcık olarak toplanması
+
+            if kitapcik_id_temp[j] != kitapcik_id_temp[j-1]:
+
+                dogru_sk1 = dogru_sk[0:len(dogru_sk) - sayıfark]
+                del dogru_sk[:len(dogru_sk)-sayıfark]
+
+                dogru_sk1 = dogru_sk1[::-1]
+
+                for k in range(len(dogru_sk1)-1, -1, -1):
+
+                     cevap_sk += dogru_sk1[k]
+
+                print("Kitapçık cevapları için")
+                print(dogru_sk1, " ------- ", cevap_sk)
+
+                dbactions.dbinsert(connection, temp_aday_id[len(temp_aday_id)-2], kitapcik_id_temp[j-1], cevap_sk)
+                cevap_sk = ''
+
+            elif i == jpg_say:
+                dogru_sk = dogru_sk[::-1]
+                cevap_sk = ''
+                for k in range(len(dogru_sk)-1, -1, -1):
+
+                    cevap_sk += dogru_sk[k]
+
+                print("Son kitapçık cevapları için")
+                print(dogru_sk, "----------", cevap_sk)
+                dbactions.dbinsert(connection, aday_id, kitapcik_id, cevap_sk)
+
+            else:
+                print('Kitapçık tamamlanmadı.')
+            j += 1
+            i += 1

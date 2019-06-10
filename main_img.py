@@ -3,23 +3,10 @@ from iki_cevap_fark import cevap_oku_fark2
 import time
 start_time = int(round(time.time() * 1000))
 
-A_temp1 = cv2.imread('C:\\Users\\NovaPM\\Desktop\\temps\\A.png')
-ret, A_temp1 = cv2.threshold(A_temp1, 200, 255, cv2.THRESH_BINARY)
-B_temp1 = cv2.imread('C:\\Users\\NovaPM\\Desktop\\temps\\B.png')
-ret, B_temp1 = cv2.threshold(B_temp1, 200, 255, cv2.THRESH_BINARY)
-C_temp1 = cv2.imread('C:\\Users\\NovaPM\\Desktop\\temps\\C.png')
-ret, C_temp1 = cv2.threshold(C_temp1, 200, 255, cv2.THRESH_BINARY)
-D_temp1 = cv2.imread('C:\\Users\\NovaPM\\Desktop\\temps\\D.png')
-ret, D_temp1 = cv2.threshold(D_temp1, 200, 255, cv2.THRESH_BINARY)
-
-temps1 = [A_temp1, B_temp1, C_temp1, D_temp1]
-finish_time = int(round(time.time() * 1000))
-print("tempokumasonrası", (finish_time) - (start_time), "Ms")
-
 dogru_sk = []
 farkpx = []
 
-def main(image1, s, coords):
+def main(image1, s, coords, temps1):
 
     sk = []
     sk1 = []
@@ -44,9 +31,9 @@ def main(image1, s, coords):
     tempj = []
     tempsentry = []
     tempi4 = []
-    finish_time = int(round(time.time() * 1000))
-    print("jsonatamalaroncesi", (finish_time) - (start_time), "Ms")
+    tempsayfark = []
 
+    #gelen koordinat verilerideki şık  koordinatları alınıyor.
     for i in range(len(coords["sorular"])):
         for sklar in coords["sorular"][i]:
             sk.append(thresh2[int((sorular[i][sklar]["center"]["first"]["y"])):int((sorular[i][sklar]["center"]["second"]["y"])),
@@ -55,9 +42,6 @@ def main(image1, s, coords):
                                 int((sorular[i][sklar]["center"]["first"]["x"]))-50:int((sorular[i][sklar]["center"]["second"]["x"]))])#coklu cevaplar için aynı şekilde sıklar sk1 e alındı.
             koordinat_sk.append((int((sorular[i][sklar]["center"]["first"]["x"]))-50, int((sorular[i][sklar]["center"]["first"]["y"])))) #rectangle kullanmak için şıkların ilk koordinatları alndı
             koordinat_sk1.append((int((sorular[i][sklar]["center"]["second"]["x"])), int((sorular[i][sklar]["center"]["second"]["y"])))) #rectangle kullanmak için şıkların ikinci koordinatları alndı0
-
-    finish_time = int(round(time.time() * 1000))
-    print("jsonatamalarsonra", (finish_time) - (start_time), "Ms")
 
     i = 0
     while i < sk_say:
@@ -84,11 +68,8 @@ def main(image1, s, coords):
         say_fark = 0  # siyah pixel saydırmak için sayaç tutuluyor
         say_fark1 = 0
 
-        finish_time = int(round(time.time() * 1000))
-        print("sayfarkonce", (finish_time) - (start_time), "Ms")
-
-        for k in range(0, 70):
-            for t in range(0, 150):
+        for k in range(0, len(fark)):
+            for t in range(0, len(fark[0])):
                 if px[k][t] == 0:
                     say_fark += 1  # siyah pixeller sayılıyor
 
@@ -97,13 +78,11 @@ def main(image1, s, coords):
                 if px1[k][t] == 0:
                     say_fark1 += 1  # siyah pixeller sayılıyor
 
-        finish_time = int(round(time.time() * 1000))
-        print("sayfarksonra", (finish_time) - (start_time), "Ms")
-
         siyah_fark = abs(say_fark1 - say_fark)
 
         if siyah_fark > 250:
 
+            tempsayfark.append(siyah_fark)
             tempsentry.append(int(i/4))
             tempj.append(i % 4)
             print("i%4---", i % 4, "i/4---", int(i/4))
@@ -132,18 +111,19 @@ def main(image1, s, coords):
                     dogru_sk.pop(len(dogru_sk)-1)
                     dogru_sk.append('X')
 
-
                     del tempsk[-1]
-
                     del tempsraw[-1]
-
                     del tempscoord[-1]
-
                     del tempscoord1[-1]
-
 
                 else:
                     x = cevap_oku_fark2(tempsk[len(tempsk)-2], tempsraw[len(tempsraw)-2], tempsk[len(tempsk)-1], tempsraw[len(tempsraw)-1])
+                    # if tempsayfark[len(tempsayfark) - 1] > tempsayfark[len(tempsayfark) - 2]:
+                    #     x = 1
+                    #
+                    # else:
+                    #     x = 0
+                    #     del tempsayfark[len(tempsayfark) - 1]
 
                     if x == 1:
                         dogru_sk.pop(len(dogru_sk) - 1)
@@ -199,8 +179,6 @@ def main(image1, s, coords):
         else:
             cv2.rectangle(thresh2, (koordinat_sk[i][0], koordinat_sk[i][1]),
                           ((koordinat_sk1[i][0]), (koordinat_sk1[i][1])), (0, 0, 255), 5)
-        finish_time = int(round(time.time() * 1000))
-        print("dogrusksonrası", (finish_time) - (start_time), "Ms")
 
         if j == 3 and len(birden_fazla) != int(i / 4) + 1:
             birden_fazla.append(int(i / 4) + 1)
@@ -208,7 +186,6 @@ def main(image1, s, coords):
             i += 1
 
         else:
-
             i += 1
 
     # -------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -216,14 +193,9 @@ def main(image1, s, coords):
     print(birden_fazla)
     print("-------------------------------------------------------")
     print(dogru_sk)
-    finish_time = int(round(time.time() * 1000))
-    print("imreadoncesi", (finish_time) - (start_time), "Ms")
 
     cv2.imwrite('C:\\Users\\NovaPM\\Desktop\\denemes\\result\\' + str(s) + '_dogru_cevap.png', thresh2)
     finish_time = int(round(time.time() * 1000))
     print("Sistem Çalışma Süresi:", (finish_time) - (start_time), "Ms")
 
     return dogru_sk
-
-
-
